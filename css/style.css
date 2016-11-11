@@ -8150,7 +8150,16 @@ button.close {
   width: 800px;
   height: 800px;
 }
-.bug {
+.bug,
+.stop {
   color: red;
   font-size: 40px;
+}
+.inline > div {
+  display: inline-block;
+  font-size: 50px;
+  margin: 1em;
+}
+.selected {
+  color: red;
 }

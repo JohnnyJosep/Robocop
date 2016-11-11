@@ -3,10 +3,37 @@
 <head>
     <title>Robocop</title>
     <meta charset="utf-8" />
-    <link href="css/style.min.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
 </head>
 <body>
-    
+
+
+    <div id="size" class="container">
+        <form action="" method="get">
+            <div class="form-group">
+                <label for="size" class="control-label">Tamany del mapa</label>
+                <input type="text" class="form-control" id="size" name="size" />
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-default" value="Insereix" />
+            </div>
+        </form>
+    </div>
+
+    <div id="menu" class="container">
+        <div class="inline selector">
+
+            <div class="bicho">
+                <span><i class="fa fa-bug"></i></span>
+            </div>
+
+            <div class="muro">
+                <span><i class="fa fa-stop"></i></span>
+            </div>
+        </div>
+        <div><span><i class="fa fa-play"></i></span></div>
+    </div>
+
     <div id="map" class="container"></div>
 
     <script src="js/jquery-3.1.1.min.js"></script>
@@ -24,21 +51,46 @@
         }
 
         $(document).ready(function () {
-            var size = getUrlVars()['size'];
+
+            $('#map').hide();
+            $('#menu').hide();
+            var query = getUrlVars();
+
+            var size = query["size"];
+
             if (size > 0) {
-                alert(size);
-            } 
+                $('#size').hide();
+                $('#menu').show();
+                $('#map').show();
+                $('#map').paint({
+                    rows: size,
+                    cols: size,
+                });
+            }
 
-            $('#map').paint();
-            $('#map').start();
+            $('.selector div').click(function () {
+                var $self = $(this);
 
-            $('.celda').click(function () {
-                if ($(this).hasClass('blanco')) {
-                    $(this).removeClass('blanco').addClass('verde');
-                } else {
-                    $(this).removeClass('verde').addClass('blanco');
-                }
+                $('.selector div').removeClass('selected');
+                $self.addClass('selected');
+
+                var figure = $self.hasClass('bicho') ? 'bug' : 'stop';
+                $('.celda').unbind('click');
+                $('.celda').click(function () {
+                    $('#map').putFigure($(this), {
+                        figure: figure
+                    });
+                });
+
             });
+
+            $('.fa-play').click(function () {
+                $('.bug').each(function () { $(this).moveNext(); });
+            })
+            //setInterval(function () {
+            //    $('.bug').moveNext();
+            //}, 1000);
+
         });
     </script>
 </body>
