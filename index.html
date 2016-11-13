@@ -85,7 +85,7 @@
             });
 
             $('.fa-play').click(function () {
-                $('.bug').each(function () { $(this).moveNext(); });
+                $('[class^=bug-]').each(function () { $(this).moveNext(); });
             })
             //setInterval(function () {
             //    $('.bug').each(function () { $(this).moveNext(); });

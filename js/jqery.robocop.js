@@ -1,6 +1,6 @@
 ﻿(function ($) {
     var fontsize = 14;
-
+    var bugsCount = 0;
     $.fn.paint = function (options) {
         var $self = $(this);
         var settings = $.extend({
@@ -23,7 +23,7 @@
             figure: 'bug'
         }, options);
         if ($celda.html() == "") {
-            $('<div class="' + settings.figure + '" style="font-size:' + fontsize + 'px"><span><i class="fa fa-fw fa-' + settings.figure + '"></i></span></div>').appendTo($celda);
+            $('<div class="' + settings.figure + '-' + (bugsCount++) + '" style="font-size:' + fontsize + 'px"><span><i class="fa fa-fw fa-' + settings.figure + '"></i></span></div>').appendTo($celda);
         }
     }
 
@@ -62,6 +62,25 @@
             }
         }
         return state;
+    }
+    function getCurrentStateOf(pos, states) {
+        if (pos == 'no') {
+            return states[0]
+        } else if (pos == 'o') {
+            return states[1];
+        } else if (pos == 'so') {
+            return states[2];
+        } else if (pos == 'n') {
+            return states[3];
+        } else if (pos == 's') {
+            return states[4];
+        } else if (pos == 'ne') {
+            return states[5];
+        } else if (pos = 'e') {
+            return states[6];
+        } else if (pos == 'se') {
+            return states[7];
+        }
     }
     //N O S E
     function getAllowed(state) {
@@ -116,6 +135,7 @@
 
     $.fn.moveNext = function () {
         var $self = $(this);
+        var idBug = getNum($self, 'bug-');
         var $cell = $self.parent();
         var x = getNum($cell, 'col-');
         var y = getNum($cell, 'row-');
@@ -150,13 +170,131 @@
                     // De forma simetrica (si salimos desde la izquierda)
                     // (m muro; x vacio; o posicion actual; · donde podemos ir)
                     // m · x     m · ?     m · ?
-                    //   o ?       o ·       o ·
+                    // > o ?     > o ·     > o ·
                     // m · x     m m ?     m · m
                     // se puede ver que se puede tomar cualquier direccion permitida excepto
                     // en el primer caso que solo podemos tomar aquellas direcciones que 
-                    // generean un giro
+                    // generean un giro respecto de la direccion actual
 
-
+                    if (last = 2) {
+                        //venimos del norte
+                        if (getCurrentStateOf('se', states) === false &&
+                            getCurrentStateOf('so', states) === false &&
+                            getCurrentStateOf('o',  states) === true  &&
+                            getCurrentStateOf('e',  states) === true) {
+                            // estamos en el primer caso donde debemos girar en el orden 
+                            // preestablecido (N-O-S-E) o bien segun una de las opciones
+                            // contrarias en la celda
+                            var lastDir = getNum($cell, 'lastdir' + idBug +'-');
+                            if (lastDir == -1) {
+                                moveTo(x, y, 1, $self);//oeste
+                                $cell.addClass('lastdir' + idBug + '-1');
+                            } else {
+                                var nextDir = (lastDir + 2) % 4; // movimiento opuesta al anterior
+                                moveTo(x, y, nextDir, $self);
+                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                            }
+                            return $self;
+                        } else {
+                            // estamos en el seguno o tercer caso, continuamos el camino 
+                            // segun el ordern preestablecido o el movimiento siguiente al
+                            // anterior realizado
+                            var lastDir = getNum($cell, 'lastdir' + idBug + '-');
+                            if (lastDir == -1) {
+                                moveTo(x, y, 1, $self);//oeste
+                                $cell.addClass('lastdir' + idBug + '-1');
+                            } else {
+                                var nextDir = lastDir + 1 == 4 ? 1 : lastDir + 1; // saltamos N = 0
+                                moveTo(x, y, nextDir, $self);
+                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                            }
+                            return $self;
+                        }
+                    } else if (last = 0) {
+                        //venimos del sur (siguiendo el patron anterior)
+                        if (getCurrentStateOf('ne', states) === false &&
+                            getCurrentStateOf('no', states) === false &&
+                            getCurrentStateOf('o', states) === true &&
+                            getCurrentStateOf('e', states) === true) {
+                            var lastDir = getNum($cell, 'lastdir' + idBug + '-');
+                            if (lastDir == -1) {
+                                moveTo(x, y, 1, $self);
+                                $cell.addClass('lastdir' + idBug + '-1');
+                            } else {
+                                var nextDir = (lastDir + 2) % 4;
+                                moveTo(x, y, nextDir, $self);
+                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                            }
+                            return $self;
+                        } else {
+                            var lastDir = getNum($cell, 'lastdir' + idBug + '-');
+                            if (lastDir == -1) {
+                                moveTo(x, y, 1, $self);//oeste
+                                $cell.addClass('lastdir' + idBug + '-1');
+                            } else {
+                                var nextDir = lastDir + 1 == 2 ? 3 : lastDir + 1; // saltamos S = 2
+                                moveTo(x, y, nextDir, $self);
+                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                            }
+                            return $self;
+                        }
+                    } else if (last = 1) {
+                        //venimos del este (siguiendo el patron anterior)
+                        if (getCurrentStateOf('so', states) === false &&
+                            getCurrentStateOf('no', states) === false &&
+                            getCurrentStateOf('s', states) === true &&
+                            getCurrentStateOf('n', states) === true) {
+                            var lastDir = getNum($cell, 'lastdir' + idBug + '-');
+                            if (lastDir == -1) {
+                                moveTo(x, y, 0, $self);//norte
+                                $cell.addClass('lastdir' + idBug + '-0');
+                            } else {
+                                var nextDir = (lastDir + 2) % 4;
+                                moveTo(x, y, nextDir, $self);
+                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                            }
+                            return $self;
+                        } else {
+                            var lastDir = getNum($cell, 'lastdir' + idBug + '-');
+                            if (lastDir == -1) {
+                                moveTo(x, y, 0, $self);//norte
+                                $cell.addClass('lastdir' + idBug + '-0');
+                            } else {
+                                var nextDir = (lastDir + 1) % 3; // saltamos E = 3
+                                moveTo(x, y, nextDir, $self);
+                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                            }
+                            return $self;
+                        }
+                    } else /*if (last = 1)*/ {
+                        //venimos del oeste (siguiendo el patron anterior)
+                        if (getCurrentStateOf('se', states) === false &&
+                            getCurrentStateOf('ne', states) === false &&
+                            getCurrentStateOf('s', states) === true &&
+                            getCurrentStateOf('n', states) === true) {
+                            var lastDir = getNum($cell, 'lastdir' + idBug + '-');
+                            if (lastDir == -1) {
+                                moveTo(x, y, 0, $self);//norte
+                                $cell.addClass('lastdir' + idBug + '-0');
+                            } else {
+                                var nextDir = (lastDir + 2) % 4;
+                                moveTo(x, y, nextDir, $self);
+                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                            }
+                            return $self;
+                        } else {
+                            var lastDir = getNum($cell, 'lastdir' + idBug + '-');
+                            if (lastDir == -1) {
+                                moveTo(x, y, 0, $self);//norte
+                                $cell.addClass('lastdir' + idBug + '-0');
+                            } else {
+                                var nextDir = (lastDir + 1) % 4 == 1 ? 2 : (lastDir + 1) % 4; // saltamos O = 1
+                                moveTo(x, y, nextDir, $self);
+                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                            }
+                            return $self;
+                        }
+                    }
 
                 } else {
                     var dir = 0;
@@ -165,8 +303,11 @@
                     moveTo(x, y, dir, $self);
                     return $self;
                 }
-
-
+            } else {
+                // falta por hacer
+                // 1.- camino libre sin figuras
+                // 2.- rodear una figura
+                // 3.- entrada a pasillo estrecho donde marcamos como pwe al entrar en el (ojo cuadros sueltos)
             }
         }
 
