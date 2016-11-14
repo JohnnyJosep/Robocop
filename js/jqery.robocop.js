@@ -31,7 +31,7 @@
     $.fn.isEmpty = function (x, y) {
         return $('.col-' + x + '.row-' + y).html() == "" && $('.col-' + x + '.row-' + y).length > 0;
     }
-    
+
     function getNum($obj, prefix) {
         var classes = $obj.attr('class').split(' ');
         for (var i = 0; i < classes.length; ++i) {
@@ -144,7 +144,7 @@
         var x = getNum($cell, 'col-');
         var y = getNum($cell, 'row-');
         var $map = $('#map');
-
+        var reverseOrder = $self.hasClass('reverse');
         var inner = $cell.html();
 
         var states = getState($self, $map);
@@ -156,15 +156,16 @@
             moveTo(x, y, aindex, $self);
             return $self;
         } else {
+            var lastmove = +getNum($self, 'last-');
             if ($self.hasClass('pwe')) {
                 log('pasillo');
-                var last = +getNum($self, 'last-');
-                var oposite = (last + 2) % 4;
+                var oposite = (lastmove + 2) % 4;
                 if (containsMoreThan(allowed, 2, true)) {
                     // si acabos de salir de un pwe no volver a entrar en el. 
                     // para ello eliminamos la opcion contraria al movimiento realizado
                     allowed[oposite] = false;
                     $self.removeClass('pwe');
+                    log('salida de pasillo');
 
                     // Llegado este punto debemos escojer de entre las direcciones posibles
                     // la que nos deje pegados a la pared
@@ -181,132 +182,154 @@
                     // en el primer caso que solo podemos tomar aquellas direcciones que 
                     // generean un giro respecto de la direccion actual
 
-                    if (last = 2) {
+                    if (lastmove == 2) {
                         //venimos del norte
-                        if (isItFreeSpace('se', states) === false &&
-                            isItFreeSpace('so', states) === false &&
-                            isItFreeSpace('o',  states) === true  &&
-                            isItFreeSpace('e',  states) === true) {
+                        var goto = 1;
+                        if (isItFreeSpace('se', states) === true &&
+                            isItFreeSpace('so', states) === true &&
+                            isItFreeSpace('o', states) === true &&
+                            isItFreeSpace('e', states) === true) {
                             // estamos en el primer caso donde debemos girar en el orden 
                             // preestablecido (N-O-S-E) o bien segun una de las opciones
                             // contrarias en la celda
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                            removeNum($cell, 'lastdir' + idBug);
+                            $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                moveTo(x, y, 1, $self);//oeste
                                 $cell.addClass('lastdir' + idBug + '-1');
                             } else {
-                                var nextDir = (lastDir + 2) % 4; // movimiento opuesta al anterior
-                                moveTo(x, y, nextDir, $self);
-                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                                goto = (lastDir + 2) % 4; // movimiento opuesta al anterior
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
-                            return $self;
                         } else {
                             // estamos en el seguno o tercer caso, continuamos el camino 
                             // segun el ordern preestablecido o el movimiento siguiente al
                             // anterior realizado
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                            removeNum($cell, 'lastdir' + idBug);
+                            $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                moveTo(x, y, 1, $self);//oeste
                                 $cell.addClass('lastdir' + idBug + '-1');
                             } else {
-                                var nextDir = lastDir + 1 == 4 ? 1 : lastDir + 1; // saltamos N = 0
-                                moveTo(x, y, nextDir, $self);
-                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                                goto = lastDir + 1 == 4 ? 1 : lastDir + 1; // saltamos N = 0
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
-                            return $self;
                         }
-                    } else if (last = 0) {
+                        if (goto == 3) {
+                            $self.addClass('reverse');
+                            if (isItFreeSpace('ne', states) === true && isItFreeSpace('se', states) === true) $self.addClass('pwe');
+                        }
+                        else {
+                            $self.removeClass('reverse');
+                            if (goto ==1 && isItFreeSpace('no', states) === true && isItFreeSpace('so', states) === true) $self.addClass('pwe');
+                        }
+                        moveTo(x, y, goto, $self);
+                        return $self;
+
+                    } else if (lastmove == 0) {
                         //venimos del sur (siguiendo el patron anterior)
-                        if (isItFreeSpace('ne', states) === false &&
-                            isItFreeSpace('no', states) === false &&
+                        var goto = 3;
+                        if (isItFreeSpace('ne', states) === true &&
+                            isItFreeSpace('no', states) === true &&
                             isItFreeSpace('o', states) === true &&
                             isItFreeSpace('e', states) === true) {
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                            removeNum($cell, 'lastdir' + idBug);
+                            $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                moveTo(x, y, 1, $self);
-                                $cell.addClass('lastdir' + idBug + '-1');
+                                $cell.addClass('lastdir' + idBug + '-3');
                             } else {
-                                var nextDir = (lastDir + 2) % 4;
-                                moveTo(x, y, nextDir, $self);
-                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                                goto = (lastDir + 2) % 4;
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
-                            return $self;
                         } else {
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                            removeNum($cell, 'lastdir' + idBug);
+                            $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                moveTo(x, y, 1, $self);//oeste
-                                $cell.addClass('lastdir' + idBug + '-1');
+                                $cell.addClass('lastdir' + idBug + '-3');
                             } else {
-                                var nextDir = lastDir + 1 == 2 ? 3 : lastDir + 1; // saltamos S = 2
-                                moveTo(x, y, nextDir, $self);
-                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                                goto = (lastDir + 1) % 4 == 2 ? 3 : (lastDir + 1) % 4; // saltamos S = 2
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
-                            return $self;
                         }
-                    } else if (last = 1) {
+                        if (goto == 1) {
+                            $self.addClass('reverse');
+                            if (isItFreeSpace('no', states) === true && isItFreeSpace('so', states) == true) $self.addClass('pwe');
+                        }
+                        else {
+                            $self.removeClass('reverse');
+                            if (goto == 3 && isItFreeSpace('ne', states) === true && isItFreeSpace('se', states) == true) $self.addClass('pwe');
+                        }
+                        moveTo(x, y, goto, $self);
+                        return $self;
+
+                    } else if (lastmove == 1) {
                         //venimos del este (siguiendo el patron anterior)
-                        if (isItFreeSpace('so', states) === false &&
-                            isItFreeSpace('no', states) === false &&
+                        var goto = 0;
+                        if (isItFreeSpace('so', states) === true &&
+                            isItFreeSpace('no', states) === true &&
                             isItFreeSpace('s', states) === true &&
                             isItFreeSpace('n', states) === true) {
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                            removeNum($cell, 'lastdir' + idBug);
+                            $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                moveTo(x, y, 0, $self);//norte
                                 $cell.addClass('lastdir' + idBug + '-0');
                             } else {
-                                var nextDir = (lastDir + 2) % 4;
-                                moveTo(x, y, nextDir, $self);
-                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                                goto = (lastDir + 2) % 4;
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
-                            return $self;
                         } else {
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                            removeNum($cell, 'lastdir' + idBug);
+                            $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                moveTo(x, y, 0, $self);//norte
                                 $cell.addClass('lastdir' + idBug + '-0');
                             } else {
-                                var nextDir = (lastDir + 1) % 3; // saltamos E = 3
-                                moveTo(x, y, nextDir, $self);
-                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                                goto = (lastDir + 1) % 3; // saltamos E = 3
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
-                            return $self;
                         }
-                    } else /*if (last = 1)*/ {
+                        if (goto == 2) {
+                            $self.addClass('reverse');
+                            if (isItFreeSpace('so', states) === true && isItFreeSpace('se', states) === true) $self.addClass('pwe');
+                        }
+                        else {
+                            $self.removeClass('reverse');
+                            if (goto == 0 && isItFreeSpace('no', states) === true && isItFreeSpace('ne', states) === true) $self.addClass('pwe');
+                        }
+                        moveTo(x, y, goto, $self);
+                        return $self;
+                    } else /*if (lastmove == 3)*/ {
                         //venimos del oeste (siguiendo el patron anterior)
-                        if (isItFreeSpace('se', states) === false &&
-                            isItFreeSpace('ne', states) === false &&
+                        var goto = 2;
+                        if (isItFreeSpace('se', states) === true &&
+                            isItFreeSpace('ne', states) === true &&
                             isItFreeSpace('s', states) === true &&
                             isItFreeSpace('n', states) === true) {
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                            removeNum($cell, 'lastdir' + idBug);
+                            $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                moveTo(x, y, 0, $self);//norte
-                                $cell.addClass('lastdir' + idBug + '-0');
+                                $cell.addClass('lastdir' + idBug + '-2');
                             } else {
-                                var nextDir = (lastDir + 2) % 4;
-                                moveTo(x, y, nextDir, $self);
+                                goto = (lastDir + 2) % 4;
                                 $cell.addClass('lastdir' + idBug + '-' + nextDir);
                             }
-                            return $self;
                         } else {
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                            removeNum($cell, 'lastdir' + idBug);
+                            $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                moveTo(x, y, 0, $self);//norte
-                                $cell.addClass('lastdir' + idBug + '-0');
+                                $cell.addClass('lastdir' + idBug + '-2');
                             } else {
-                                var nextDir = (lastDir + 1) % 4 == 1 ? 2 : (lastDir + 1) % 4; // saltamos O = 1
-                                moveTo(x, y, nextDir, $self);
-                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                                goto = (lastDir + 1) % 4 == 1 ? 2 : (lastDir + 1) % 4; // saltamos O = 1
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
-                            return $self;
                         }
+                        if (goto == 0) {
+                            $self.addClass('reverse');
+                            if (isItFreeSpace('no', states) === true && isItFreeSpace('ne', states) === true) $self.addClass('pwe');
+                        }
+                        else {
+                            $self.removeClass('reverse');
+                            if (goto == 2 && isItFreeSpace('so', states) === true && isItFreeSpace('se', states) === true) $self.addClass('pwe');
+                        }
+                        moveTo(x, y, goto, $self);
+                        return $self;
                     }
 
                 } else {
@@ -325,15 +348,17 @@
                 if (isItFreeSpace('n', states) == false && isItFreeSpace('s', states) == false) {
                     log('aparecemos en pasillo');
                     $self.addClass('pwe');
-                    moveTo(x, y, 1, $self);
-                    $cell.addClass('lastdir' + idBug + '-1');
+                    var goto = lastmove == -1 ? 1 : lastmove;
+                    moveTo(x, y, goto, $self);
+                    $cell.addClass('lastdir' + idBug + '-' + goto);
                     return $self;
                 }
                 if (isItFreeSpace('e', states) == false && isItFreeSpace('o', states) == false) {
                     log('aparecemos en pasillo');
                     $self.addClass('pwe');
-                    moveTo(x, y, 0, $self);
-                    $cell.addClass('lastdir' + idBug + '-0');
+                    var goto = lastmove == -1 ? 0 : lastmove;
+                    moveTo(x, y, goto, $self);
+                    $cell.addClass('lastdir' + idBug + '-' + goto);
                     return $self;
                 }
 
@@ -353,7 +378,7 @@
                     pasillos[1] = true;
                 }
                 if (isItFreeSpace('so', states) == false &&
-                    isItFreeSpace('se', states) == false && 
+                    isItFreeSpace('se', states) == false &&
                     isItFreeSpace('s', states) == true) {
                     pasillos[2] = true;
                 }
@@ -366,57 +391,79 @@
                 // si hay pasillos estrechos debemos escojer aquel que aun no hemos explorado
                 // o bien segun lo que marque la celda o segun el orden preestablecido
                 // finalmente hay que activar la marca 'pwe' para que explore todo el pasillo
-                var nextDirs = [];
-                for (var i = 0; i < pasillos.length; i++) {
-                    if (pasillos[i] == true) {
-                        nextDirs.push(i);
-                    }
+                var entrada = false;
+                for (var i = 0; i < pasillos.length && !entrada; i++) {
+                    entrada = pasillos[i];
                 }
-                if (nextDirs.length > 0) {
+                if (entrada) {
                     log('entrada a pasillo');
-                    var lastDir = getNum($cell, 'lastdir' + idBug + '-');
-                    removeNum($cell, 'lastdir' + idBug);
                     $self.addClass('pwe'); // marcamos como pasillo estrecho
-                    if (lastDir == -1) {
-                        moveTo(x, y, nextDirs[0], $self);
-                        $cell.addClass('lastdir' + idBug + '-' + nextDirs[0]);
-                    } else {
-                        var nextDir = (lastDir + 1) % 4;
-                        while (!$.inArray(nextDir, nextDirs)) {
-                            nextDir = (lastDir + 1) % 4;
+                    var lastEnt = getNum($cell, 'lastPath' + idBug + '-');
+                    $cell.removeClass('lastPath' + idBug + '-' + lastEnt);
+                    if (lastEnt == -1) {
+                        var next = lastmove;
+                        while (!pasillos[next]) {
+                            next = (next + 1) % 4;
                         }
-                        moveTo(x, y, nextDir, $self);
-                        $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                        $cell.addClass('lastPath' + idBug + '-' + next);
+                        moveTo(x, y, next, $self);
+                    } else {
+                        var next = (lastEnt + 1) % 4;
+                        while (!pasillos[next]) {
+                            next = (next + 1) % 4;
+                        }
+                        $cell.addClass('lastPath' + idBug + '-' + next);
+                        moveTo(x, y, next, $self);
                     }
-
+                    
                     return $self;
                 }
 
                 // llegados a este punto no estamos ante pasillos estrechos
                 // estudiemos la posibilidad de estar rodeando una figura
                 // en caso de no haber alguna segiremos hacia el norte
-                var x0 = !(isItFreeSpace('n', states) == true && isItFreeSpace('no', states) == true);
-                var x1 = !(isItFreeSpace('o', states) == true && isItFreeSpace('so', states) == true);
-                var x2 = !(isItFreeSpace('s', states) == true && isItFreeSpace('se', states) == true);
-                var x3 = !(isItFreeSpace('e', states) == true && isItFreeSpace('ne', states) == true);
-
-                log('estados: ' + x0 + ", " + x1 + ", " + x2 + ", " + x3)
-
-                if (x3 && !x0 ) {
-                    moveTo(x, y, 0, $self);
-                    return $self;
-                }
-                if (x0 && !x1) {
-                    moveTo(x, y, 1, $self);
-                    return $self;
-                }
-                if (x1 && !x2 ) {
-                    moveTo(x, y, 2, $self);
-                    return $self;
-                }
-                if (x2 && !x3) {
-                    moveTo(x, y, 3, $self);
-                    return $self;
+                if (!reverseOrder) {
+                    var x0 = !(isItFreeSpace('n', states) == true && isItFreeSpace('no', states) == true);
+                    var x1 = !(isItFreeSpace('o', states) == true && isItFreeSpace('so', states) == true);
+                    var x2 = !(isItFreeSpace('s', states) == true && isItFreeSpace('se', states) == true);
+                    var x3 = !(isItFreeSpace('e', states) == true && isItFreeSpace('ne', states) == true);
+                    if (x3 && !x0) {
+                        moveTo(x, y, 0, $self);
+                        return $self;
+                    }
+                    if (x0 && !x1) {
+                        moveTo(x, y, 1, $self);
+                        return $self;
+                    }
+                    if (x1 && !x2) {
+                        moveTo(x, y, 2, $self);
+                        return $self;
+                    }
+                    if (x2 && !x3) {
+                        moveTo(x, y, 3, $self);
+                        return $self;
+                    }
+                } else {
+                    var x0 = !(isItFreeSpace('no', states) == true && isItFreeSpace('o', states) == true);
+                    var x1 = !(isItFreeSpace('so', states) == true && isItFreeSpace('s', states) == true);
+                    var x2 = !(isItFreeSpace('se', states) == true && isItFreeSpace('e', states) == true);
+                    var x3 = !(isItFreeSpace('ne', states) == true && isItFreeSpace('n', states) == true);
+                    if (x0 && !x2) {
+                        moveTo(x, y, 0, $self);
+                        return $self;
+                    }
+                    if (x1 && !x0) {
+                        moveTo(x, y, 1, $self);
+                        return $self;
+                    }
+                    if (x2 && !x0 && !x1) {
+                        moveTo(x, y, 2, $self);
+                        return $self;
+                    }
+                    if (x3 && !x2) {
+                        moveTo(x, y, 3, $self);
+                        return $self;
+                    }
                 }
 
                 if (isItFreeSpace('n', states) == true) {
