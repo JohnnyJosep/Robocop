@@ -69,17 +69,17 @@
     function isItFreeSpace(pos, states) {
         if (pos == 'no') {
             return states[0]
-        } else if (pos == 'o') {
+        } else if (pos == 'o' || pos == 1) {
             return states[1];
         } else if (pos == 'so') {
             return states[2];
-        } else if (pos == 'n') {
+        } else if (pos == 'n' || pos == 0) {
             return states[3];
-        } else if (pos == 's') {
+        } else if (pos == 's' || pos == 2) {
             return states[4];
         } else if (pos == 'ne') {
             return states[5];
-        } else if (pos == 'e') {
+        } else if (pos == 'e' || pos == 3) {
             return states[6];
         } else if (pos == 'se') {
             return states[7];
@@ -207,9 +207,11 @@
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
                             $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                $cell.addClass('lastdir' + idBug + '-1');
+                                if (isItFreeSpace('o', states) === false) goto = 2;
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             } else {
                                 goto = lastDir + 1 == 4 ? 1 : lastDir + 1; // saltamos N = 0
+                                while (isItFreeSpace(goto, states) === false) goto = goto + 1 == 4 ? 1 : goto + 1;
                                 $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
                         }
@@ -219,7 +221,7 @@
                         }
                         else {
                             $self.removeClass('reverse');
-                            if (goto ==1 && isItFreeSpace('no', states) === true && isItFreeSpace('so', states) === true) $self.addClass('pwe');
+                            if (goto == 1 && isItFreeSpace('no', states) === true && isItFreeSpace('so', states) === true) $self.addClass('pwe');
                         }
                         moveTo(x, y, goto, $self);
                         return $self;
@@ -243,9 +245,11 @@
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
                             $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                $cell.addClass('lastdir' + idBug + '-3');
+                                if (isItFreeSpace('e', states) === false) goto = 0;
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             } else {
                                 goto = (lastDir + 1) % 4 == 2 ? 3 : (lastDir + 1) % 4; // saltamos S = 2
+                                while (isItFreeSpace(goto, states) === false) goto = (goto + 1) % 4 == 2 ? 3 : (goto + 1) % 4;
                                 $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
                         }
@@ -279,9 +283,11 @@
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
                             $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
-                                $cell.addClass('lastdir' + idBug + '-0');
+                                if (isItFreeSpace('n', states) === false) goto = 1;
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             } else {
                                 goto = (lastDir + 1) % 3; // saltamos E = 3
+                                while (isItFreeSpace(goto, states) === false) goto = (goto + 1) % 3;
                                 $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
                         }
@@ -308,15 +314,17 @@
                                 $cell.addClass('lastdir' + idBug + '-2');
                             } else {
                                 goto = (lastDir + 2) % 4;
-                                $cell.addClass('lastdir' + idBug + '-' + nextDir);
+                                $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
                         } else {
                             var lastDir = getNum($cell, 'lastdir' + idBug + '-');
                             $cell.removeClass('lastdir' + idBug + '-' + lastDir);
                             if (lastDir == -1) {
+                                if (isItFreeSpace('s', states) === false) goto = 3;
                                 $cell.addClass('lastdir' + idBug + '-2');
                             } else {
                                 goto = (lastDir + 1) % 4 == 1 ? 2 : (lastDir + 1) % 4; // saltamos O = 1
+                                while (isItFreeSpace(goto, states) === false) goto = (goto + 1) % 4 == 1 ? 2 : (goto + 1) % 4;
                                 $cell.addClass('lastdir' + idBug + '-' + goto);
                             }
                         }
@@ -415,7 +423,7 @@
                         $cell.addClass('lastPath' + idBug + '-' + next);
                         moveTo(x, y, next, $self);
                     }
-                    
+
                     return $self;
                 }
 
@@ -448,11 +456,11 @@
                     var x1 = !(isItFreeSpace('so', states) == true && isItFreeSpace('s', states) == true);
                     var x2 = !(isItFreeSpace('se', states) == true && isItFreeSpace('e', states) == true);
                     var x3 = !(isItFreeSpace('ne', states) == true && isItFreeSpace('n', states) == true);
-                    if (x0 && !x2) {
+                    if (x0 && !x2 && !x3) {
                         moveTo(x, y, 0, $self);
                         return $self;
                     }
-                    if (x1 && !x0) {
+                    if (x1 && !x0 && !x3) {
                         moveTo(x, y, 1, $self);
                         return $self;
                     }
@@ -460,7 +468,7 @@
                         moveTo(x, y, 2, $self);
                         return $self;
                     }
-                    if (x3 && !x2) {
+                    if (x3 && !x2 && !x1) {
                         moveTo(x, y, 3, $self);
                         return $self;
                     }
