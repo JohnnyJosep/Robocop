@@ -38,7 +38,7 @@
                 if (trans && (col == 0 || row == 0)) {
                     $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
                 } else {
-                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/tierra.png" /><img class="roca" src="imgs/roca.png" /></div>').appendTo($('.fila-' + fila));
+                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img class="cubo" src="imgs/tierra.png" /><img class="roca" src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
                 }
                 fila++;
             }
