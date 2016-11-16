@@ -38,7 +38,7 @@
                 if (trans && (col == 0 || row == 0)) {
                     $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
                 } else {
-                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/tierra.png" /></div>').appendTo($('.fila-' + fila));
+                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/tierra.png" /><img class="roca" src="imgs/roca.png" /></div>').appendTo($('.fila-' + fila));
                 }
                 fila++;
             }
@@ -56,7 +56,10 @@
     }
 
     $.fn.isEmpty = function (x, y) {
-        return $('.col-' + x + '.row-' + y).html() == "" && $('.col-' + x + '.row-' + y).length > 0;
+        return $('.tierra.col-' + x + '.row-' + y).hasClass('roca') == "" && $('.tierra.col-' + x + '.row-' + y).length > 0;
+    }
+    $.fn.putRock = function (x, y) {
+        return $('.tierra.col-' + x + '.row-' + y).addClass('roca');
     }
 
     function getNum($obj, prefix) {
@@ -74,13 +77,13 @@
         $obj.removeClass(prefix + num);
     }
     function log(msg) {
-        if (debug > -1) console.log((debug++) + ".-" + msg);
+        if (debug > -1) console.log(msg);
     }
     //NO O SO N S NE E SE
-    function getState($bug, $map) {
-        var $celda = $bug.parent();
-        var x = getNum($celda, 'col-');
-        var y = getNum($celda, 'row-');
+    function getState($map, x, y) {
+        //var $celda = $bug.parent();
+        //var x = getNum($celda, 'col-');
+        //var y = getNum($celda, 'row-');
         var state = [];
         for (var i = +x - 1; i <= +x + 1; i++) {
             for (var j = +y - 1; j <= +y + 1; j++) {
@@ -158,19 +161,19 @@
         var mt = $self.css('margin-top');
         ml = ml.substring(0, ml.length - 2);
         mt = mt.substring(0, mt.length - 2);
-
+        log("dir: " + dir);
         if (dir == 0) {
             ml = +ml - 50;
-            mt = +mt - 29;
+            mt = +mt + 29;
         } else if (dir == 1) {
             ml = +ml + 50;
-            mt = +mt - 29;
+            mt = +mt + 29;
         } else if (dir == 2) {
             ml = +ml + 50;
-            mt = +mt + 29;
+            mt = +mt - 29;
         } else {
             ml = +ml - 50;
-            mt = +mt + 29;
+            mt = +mt - 29;
         }
         log("ml " + ml);
         log("mt " + mt);
@@ -179,6 +182,22 @@
             marginLeft: ml + "px",
             marginTop: mt + "px"
         });
+
+
+        var c = getNum($self, 'col-');
+        var r = getNum($self, 'row-');
+        $self.removeClass('col-' + c).removeClass('row-' + r);
+        if (dir == 0) {
+            r -= 1;
+        } else if (dir == 1) {
+            c -= 1
+        } else if (dir == 2) {
+            r += 1;
+        } else {
+            c += 1;
+        }
+
+        $self.addClass('col-' + c).addClass('row-' + r);
         return $self;
     }
     function containsMoreThan(arr, num, obj) {
@@ -191,18 +210,14 @@
         }
         return false;
     }
-    $.fn.positionIn = function (x, y) {
-        var dim = getNum($(this), 'dim');
-        var cent = Math.floor(dim / 2) + 1;
-        var ml = (x - cent) * 27;
-        var mt = -(y - cent - 1) * 29;
-        log("ml " + ml);
-        log("mt " + mt);
-        ml = 0;
+
+    $.fn.positionIn = function (x, y, pos) { 
+        var poso = $('.tierra.row-' + y + '.col-' + x).position();
         $(this).css({
-            marginLeft: ml + "px",
-            marginTop: mt + "px",
+            marginLeft: -(poso.left - +pos.left) + "px",
+            marginTop: -(poso.top - +pos.top) + "px",
         });
+        return $(this).addClass('col-'+x).addClass('row-'+y);
     }
     $.fn.moveNext = function () {
         var $self = $(this);
@@ -213,7 +228,7 @@
         var $map = $('#map');
         var reverseOrder = $self.hasClass('reverse');
 
-        var states = getState($self, $map);
+        var states = getState($self, c, r);
         var allowed = getAllowed(states);
         var aindex = allowedIndex(allowed);
 
