@@ -162,6 +162,8 @@
     }
     $.fn.moveToDir = function (dir) {
         var $self = $(this);
+        removeNum($self, 'last-');
+        $self.addClass('last-' + dir);
         var ml = $self.css('margin-left');
         var mt = $self.css('margin-top');
         ml = ml.substring(0, ml.length - 2);
@@ -247,6 +249,7 @@
             if ($self.hasClass('pwe')) {
                 log('pasillo');
                 var oposite = (lastmove + 2) % 4;
+                if (lastmove == -1) oposite = -1;
                 if (containsMoreThan(allowed, 2, true)) {
                     // si acabos de salir de un pwe no volver a entrar en el. 
                     // para ello eliminamos la opcion contraria al movimiento realizado
@@ -436,7 +439,7 @@
                     while ((allowed[dir] == false || dir == oposite) && dir < allowed.length) dir++;
                     if (dir == allowed.length) dir = oposite;
                     //moveTo(x, y, goto, $self);
-                    $self.moveToDir(goto);
+                    $self.moveToDir(dir);
                     return $self;
                 }
             } else {

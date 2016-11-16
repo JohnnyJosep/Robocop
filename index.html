@@ -53,10 +53,17 @@
                 var pos = $('.col-' + Math.floor(dim / 2) + '.row-' + Math.floor(dim / 2) + '.tierra').position()
                 $('#mapa').positionIn(0, 0, pos);
                 setTimeout(function () { }, 1000);
-                setInterval(function () {
-                    $('#mapa').moveNext();
-                    console.log('next');
-                }, 700);
+
+                $(document).keydown(function (ev) {
+                    if (ev.key == 'n') {
+                        $('#mapa').moveNext();
+                    }
+                })
+
+                //setInterval(function () {
+                //    $('#mapa').moveNext();
+                //    console.log('next');
+                //}, 700);
             });
 
 
