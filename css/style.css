@@ -8137,6 +8137,10 @@ button.close {
   border: 1px solid #14453D;
   background-color: #29554e;
 }
+.rojo {
+  border: 1px solid red;
+  background-color: red;
+}
 .blanco {
   border: 1px solid #fff;
   background-color: none;

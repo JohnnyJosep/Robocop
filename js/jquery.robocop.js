@@ -12,7 +12,7 @@
         for (var r = 0; r < settings.rows; r++) {
             var $row = $('<div class="fila" style="height:' + (100 / settings.rows) + '%"></div>')
             for (var c = 0; c < settings.cols; c++) {
-                $('<div class="celda verde pri-0 col-' + c + ' row-' + r + '" style="width:' + (100 / settings.cols) + '%"></div>').appendTo($row)
+                $('<div class="celda ' + (c == 0 && r == 0 ? 'rojo' : 'verde') + ' pri-0 col-' + c + ' row-' + r + '" style="width:' + (100 / settings.cols) + '%"></div>').appendTo($row)
             }
             $row.appendTo($self);
         }
@@ -59,9 +59,14 @@
         return $('.tierra.col-' + x + '.row-' + y).hasClass('roca') == "" && $('.tierra.col-' + x + '.row-' + y).length > 0;
     }
     $.fn.putRock = function (x, y) {
-        return $('.tierra.col-' + x + '.row-' + y).addClass('roca');
+        return $('.tierra.col-' + x + '.row-' + y).toggleClass('roca');
     }
-
+    $.fn.getClass = function () {
+        var $self = $(this);
+        var c = getNum($self, 'col-');
+        var r = getNum($self, 'row-');
+        return { col: c, row: r };
+    }
     function getNum($obj, prefix) {
         var classes = $obj.attr('class').split(' ');
         for (var i = 0; i < classes.length; ++i) {
