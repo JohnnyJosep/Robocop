@@ -19,6 +19,33 @@
 
         return $self;
     }
+    $.fn.paint25D = function (dim) {
+        var $self = $(this);
+        var trans = false;
+        if (dim % 2 == 0) {
+            trans = true;
+            dim++;
+        }
+        $self.addClass('dim' + dim);
+        for (var i = 0; i < dim * 2 - 1; i++) {
+            $('<div class="linea fila-' + i +'"></div>').appendTo($self);
+        }
+
+        var sf = 0;
+        for (var col = 0; col < dim; col++) {
+            var fila = sf++;
+            for (var row = 0; row < dim; row++) {
+                if (trans && (col == 0 || row == 0)) {
+                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
+                } else {
+                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/tierra.png" /></div>').appendTo($('.fila-' + fila));
+                }
+                fila++;
+            }
+        }
+        return $self;
+
+    }
     $.fn.putFigure = function ($celda, options) {
         var settings = $.extend({
             figure: 'bug'
@@ -124,7 +151,35 @@
 
         $cell.html('');
         $('.col-' + currx + '.row-' + curry).html(inner);
-        $('.col-' + currx + '.row-' + curry + " > .bug");
+    }
+    $.fn.moveToDir = function (dir) {
+        var $self = $(this);
+        var ml = $self.css('margin-left');
+        var mt = $self.css('margin-top');
+        ml = ml.substring(0, ml.length - 2);
+        mt = mt.substring(0, mt.length - 2);
+
+        if (dir == 0) {
+            ml = +ml - 50;
+            mt = +mt - 29;
+        } else if (dir == 1) {
+            ml = +ml + 50;
+            mt = +mt - 29;
+        } else if (dir == 2) {
+            ml = +ml + 50;
+            mt = +mt + 29;
+        } else {
+            ml = +ml - 50;
+            mt = +mt + 29;
+        }
+        log("ml " + ml);
+        log("mt " + mt);
+
+        $self.css({
+            marginLeft: ml + "px",
+            marginTop: mt + "px"
+        });
+        return $self;
     }
     function containsMoreThan(arr, num, obj) {
         var founded = 0;
@@ -136,16 +191,27 @@
         }
         return false;
     }
-
+    $.fn.positionIn = function (x, y) {
+        var dim = getNum($(this), 'dim');
+        var cent = Math.floor(dim / 2) + 1;
+        var ml = (x - cent) * 27;
+        var mt = -(y - cent - 1) * 29;
+        log("ml " + ml);
+        log("mt " + mt);
+        ml = 0;
+        $(this).css({
+            marginLeft: ml + "px",
+            marginTop: mt + "px",
+        });
+    }
     $.fn.moveNext = function () {
         var $self = $(this);
         var idBug = getNum($self, 'bug-');
-        var $cell = $self.parent();
-        var x = getNum($cell, 'col-');
-        var y = getNum($cell, 'row-');
+        var c = getNum($self, 'col-');
+        var r = getNum($self, 'row-');
+        var $cell = $('.tierra.col-' + c + '.row-' + r);
         var $map = $('#map');
         var reverseOrder = $self.hasClass('reverse');
-        var inner = $cell.html();
 
         var states = getState($self, $map);
         var allowed = getAllowed(states);
@@ -153,7 +219,8 @@
 
         if (aindex != -1) { //si un solo movimiento esta permitido (passillo estrecho sin salida) 'pwe'
             $self.addClass('pwe');
-            moveTo(x, y, aindex, $self);
+            //moveTo(x, y, aindex, $self);
+            $self.moveToDir(aindex);
             return $self;
         } else {
             var lastmove = +getNum($self, 'last-');
@@ -223,7 +290,8 @@
                             $self.removeClass('reverse');
                             if (goto == 1 && isItFreeSpace('no', states) === true && isItFreeSpace('so', states) === true) $self.addClass('pwe');
                         }
-                        moveTo(x, y, goto, $self);
+                        //moveTo(x, y, goto, $self);
+                        $self.moveToDir(goto);
                         return $self;
 
                     } else if (lastmove == 0) {
@@ -261,7 +329,8 @@
                             $self.removeClass('reverse');
                             if (goto == 3 && isItFreeSpace('ne', states) === true && isItFreeSpace('se', states) == true) $self.addClass('pwe');
                         }
-                        moveTo(x, y, goto, $self);
+                        //moveTo(x, y, goto, $self);
+                        $self.moveToDir(goto);
                         return $self;
 
                     } else if (lastmove == 1) {
@@ -299,7 +368,8 @@
                             $self.removeClass('reverse');
                             if (goto == 0 && isItFreeSpace('no', states) === true && isItFreeSpace('ne', states) === true) $self.addClass('pwe');
                         }
-                        moveTo(x, y, goto, $self);
+                        //moveTo(x, y, goto, $self);
+                        $self.moveToDir(goto);
                         return $self;
                     } else /*if (lastmove == 3)*/ {
                         //venimos del oeste (siguiendo el patron anterior)
@@ -336,7 +406,8 @@
                             $self.removeClass('reverse');
                             if (goto == 2 && isItFreeSpace('so', states) === true && isItFreeSpace('se', states) === true) $self.addClass('pwe');
                         }
-                        moveTo(x, y, goto, $self);
+                        //moveTo(x, y, goto, $self);
+                        $self.moveToDir(goto);
                         return $self;
                     }
 
@@ -344,7 +415,8 @@
                     var dir = 0;
                     while ((allowed[dir] == false || dir == oposite) && dir < allowed.length) dir++;
                     if (dir == allowed.length) dir = oposite;
-                    moveTo(x, y, dir, $self);
+                    //moveTo(x, y, goto, $self);
+                    $self.moveToDir(goto);
                     return $self;
                 }
             } else {
@@ -357,7 +429,8 @@
                     log('aparecemos en pasillo');
                     $self.addClass('pwe');
                     var goto = lastmove == -1 ? 1 : lastmove;
-                    moveTo(x, y, goto, $self);
+                    //moveTo(x, y, goto, $self);
+                    $self.moveToDir(goto);
                     $cell.addClass('lastdir' + idBug + '-' + goto);
                     return $self;
                 }
@@ -365,7 +438,8 @@
                     log('aparecemos en pasillo');
                     $self.addClass('pwe');
                     var goto = lastmove == -1 ? 0 : lastmove;
-                    moveTo(x, y, goto, $self);
+                    //moveTo(x, y, goto, $self);
+                    $self.moveToDir(goto);
                     $cell.addClass('lastdir' + idBug + '-' + goto);
                     return $self;
                 }
@@ -414,14 +488,16 @@
                             next = (next + 1) % 4;
                         }
                         $cell.addClass('lastPath' + idBug + '-' + next);
-                        moveTo(x, y, next, $self);
+                        //moveTo(x, y, next, $self);
+                        $self.moveToDir(next);
                     } else {
                         var next = (lastEnt + 1) % 4;
                         while (!pasillos[next]) {
                             next = (next + 1) % 4;
                         }
                         $cell.addClass('lastPath' + idBug + '-' + next);
-                        moveTo(x, y, next, $self);
+                        //moveTo(x, y, next, $self);
+                        $self.moveToDir(next);
                     }
 
                     return $self;
@@ -436,19 +512,23 @@
                     var x2 = !(isItFreeSpace('s', states) == true && isItFreeSpace('se', states) == true);
                     var x3 = !(isItFreeSpace('e', states) == true && isItFreeSpace('ne', states) == true);
                     if (x3 && !x0) {
-                        moveTo(x, y, 0, $self);
+                        //moveTo(x, y, 0, $self);
+                        $self.moveToDir(0);
                         return $self;
                     }
                     if (x0 && !x1) {
-                        moveTo(x, y, 1, $self);
+                        //moveTo(x, y, 1, $self);
+                        $self.moveToDir(1);
                         return $self;
                     }
                     if (x1 && !x2) {
-                        moveTo(x, y, 2, $self);
+                        //moveTo(x, y, 2, $self);
+                        $self.moveToDir(2);
                         return $self;
                     }
                     if (x2 && !x3) {
-                        moveTo(x, y, 3, $self);
+                        //moveTo(x, y, 3, $self);
+                        $self.moveToDir(3);
                         return $self;
                     }
                 } else {
@@ -457,34 +537,42 @@
                     var x2 = !(isItFreeSpace('se', states) == true && isItFreeSpace('e', states) == true);
                     var x3 = !(isItFreeSpace('ne', states) == true && isItFreeSpace('n', states) == true);
                     if (x0 && !x2 && !x3) {
-                        moveTo(x, y, 0, $self);
+                        //moveTo(x, y, 0, $self);
+                        $self.moveToDir(0);
                         return $self;
                     }
                     if (x1 && !x0 && !x3) {
-                        moveTo(x, y, 1, $self);
+                        //moveTo(x, y, 1, $self);
+                        $self.moveToDir(1);
                         return $self;
                     }
                     if (x2 && !x0 && !x1) {
-                        moveTo(x, y, 2, $self);
+                        //moveTo(x, y, 2, $self);
+                        $self.moveToDir(2);
                         return $self;
                     }
                     if (x3 && !x2 && !x1) {
-                        moveTo(x, y, 3, $self);
+                        //moveTo(x, y, 3, $self);
+                        $self.moveToDir(3);
                         return $self;
                     }
                 }
 
                 if (isItFreeSpace('n', states) == true) {
-                    moveTo(x, y, 0, $self);
+                    //moveTo(x, y, 0, $self);
+                    $self.moveToDir(0);
                     return $self;
                 } else if (isItFreeSpace('o', states) == true) {
-                    moveTo(x, y, 1, $self);
+                    //moveTo(x, y, 1, $self);
+                    $self.moveToDir(1);
                     return $self;
                 } else if (isItFreeSpace('s', states) == true) {
-                    moveTo(x, y, 2, $self);
+                    //moveTo(x, y, 2, $self);
+                    $self.moveToDir(2);
                     return $self;
                 } else if (isItFreeSpace('e', states) == true) {
-                    moveTo(x, y, 3, $self);
+                    //moveTo(x, y, 3, $self);
+                    $self.moveToDir(3);
                     return $self;
                 }
 
