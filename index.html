@@ -1,96 +1,87 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Robocop</title>
-    <meta charset="utf-8" />
+    <title></title>
+	<meta charset="utf-8" />
+
     <link href="css/style.css" rel="stylesheet" />
 </head>
 <body>
-
-
-    <div id="size" class="container">
-        <form action="" method="get">
-            <div class="form-group">
-                <label for="size" class="control-label">Tamany del mapa</label>
-                <input type="text" class="form-control" id="size" name="size" />
-            </div>
-            <div class="form-group">
-                <input type="submit" class="btn btn-default" value="Insereix" />
-            </div>
-        </form>
-    </div>
-
     <div id="menu" class="container">
-        <div class="inline selector">
-
-            <div class="bicho">
-                <span><i class="fa fa-bug"></i></span>
-            </div>
-
-            <div class="muro">
-                <span><i class="fa fa-stop"></i></span>
-            </div>
+        <div id="map" ></div>
+        <div class="form-group">
+            <button class="btn btn-default" id="btn">Cabra a la fuga!!!</button> 
         </div>
-        <div><span style="font-size:40px;"><i class="fa fa-play"></i></span></div>
     </div>
 
-    <div id="map" class="container"></div>
+    <div id="mapa" class="bug-0"></div>
+    <dic class="cabra">
+        <img src="imgs/cabra.png"/>
+    </dic>
+
 
     <script src="js/jquery-3.1.1.min.js"></script>
     <script src="js/jquery.robocop.js"></script>
     <script>
-        function getUrlVars() {
-            var vars = [], hash;
-            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-            for (var i = 0; i < hashes.length; ++i) {
-                hash = hashes[i].split('=');
-                vars.push(hash[0]);
-                vars[hash[0]] = hash[1];
-            }
-            return vars;
-        }
-
         $(document).ready(function () {
+            var dim = 17;
 
-            $('#map').hide();
-            $('#menu').hide();
-            var query = getUrlVars();
+            $('#mapa').paint25D(dim);
+            $('#mapa').hide();
+            $('.cabra').hide();
 
-            var size = query["size"];
-
-            if (size > 0) {
-                $('#size').hide();
-                $('#menu').show();
-                $('#map').show();
-                $('#map').paint({
-                    rows: size,
-                    cols: size,
-                });
-            }
-
-            $('.selector div').click(function () {
+            $('#map').paint({ rows: dim, cols: dim });
+            $('.celda').click(function () {
                 var $self = $(this);
-
-                $('.selector div').removeClass('selected');
-                $self.addClass('selected');
-
-                var figure = $self.hasClass('bicho') ? 'bug' : 'stop';
-                $('.celda').unbind('click');
-                $('.celda').click(function () {
-                    $('#map').putFigure($(this), {
-                        figure: figure
-                    });
-                });
-
+                if ($self.hasClass('verde')) {
+                    $self.removeClass('verde').addClass('blanco');
+                    var p = $self.getClass();
+                    $('#mapa').putRock(p.col, p.row);
+                } else if ($self.hasClass('blanco')) {
+                    $self.addClass('verde').removeClass('blanco');
+                    var p = $self.getClass();
+                    $('#mapa').putRock(p.col, p.row);
+                }
+                
             });
 
-            $('.fa-play').click(function () {
-                $('[class^=bug-]').each(function () { $(this).moveNext(); });
-            })
-            //setInterval(function () {
-            //    $('.bug').each(function () { $(this).moveNext(); });
-            //}, 500);
+            $('#btn').click(function () {
+                $('#menu').hide();
+                $('#mapa').show();
+                $('.cabra').show();
+                setTimeout(function () { }, 1000);
+                var pos = $('.col-' + Math.floor(dim / 2) + '.row-' + Math.floor(dim / 2) + '.tierra').position()
+                $('#mapa').positionIn(0, 0, pos);
+                setTimeout(function () { }, 1000);
+                setInterval(function () {
+                    $('#mapa').moveNext();
+                    console.log('next');
+                }, 700);
+            });
 
+
+
+            //$('#mapa').putRock(0, 0);
+            //$('#mapa').putRock(0, 2);
+
+            setTimeout(function () { }, 1000);
+
+            
+            
+            setTimeout(null, 1000);
+
+            //$(document).keydown(function (ev) {
+            //    if (ev.key == 'n') {
+            //        $('#mapa').moveNext();
+            //    }
+            //})
+
+            setTimeout(function () { }, 1000);
+
+            //setInterval(function () {
+            //    $('#mapa').moveNext();
+            //    console.log('next');
+            //}, 700);
         });
     </script>
 </body>

@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Robocop</title>
+    <meta charset="utf-8" />
+    <link href="css/style.css" rel="stylesheet" />
+</head>
+<body>
+
+
+    <div id="size" class="container">
+        <form action="" method="get">
+            <div class="form-group">
+                <label for="size" class="control-label">Tamany del mapa</label>
+                <input type="text" class="form-control" id="size" name="size" />
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-default" value="Insereix" />
+            </div>
+        </form>
+    </div>
+
+    <div id="menu" class="container">
+        <div class="inline selector">
+
+            <div class="bicho">
+                <span><i class="fa fa-bug"></i></span>
+            </div>
+
+            <div class="muro">
+                <span><i class="fa fa-stop"></i></span>
+            </div>
+        </div>
+        <div><span style="font-size:40px;"><i class="fa fa-play"></i></span></div>
+    </div>
+
+    <div id="map" class="container"></div>
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/jquery.robocop.js"></script>
+    <script>
+        function getUrlVars() {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < hashes.length; ++i) {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        }
+
+        $(document).ready(function () {
+
+            $('#map').hide();
+            $('#menu').hide();
+            var query = getUrlVars();
+
+            var size = query["size"];
+
+            if (size > 0) {
+                $('#size').hide();
+                $('#menu').show();
+                $('#map').show();
+                $('#map').paint({
+                    rows: size,
+                    cols: size,
+                });
+            }
+
+            $('.selector div').click(function () {
+                var $self = $(this);
+
+                $('.selector div').removeClass('selected');
+                $self.addClass('selected');
+
+                var figure = $self.hasClass('bicho') ? 'bug' : 'stop';
+                $('.celda').unbind('click');
+                $('.celda').click(function () {
+                    $('#map').putFigure($(this), {
+                        figure: figure
+                    });
+                });
+
+            });
+
+            $('.fa-play').click(function () {
+                $('[class^=bug-]').each(function () { $(this).moveNext(); });
+            })
+            //setInterval(function () {
+            //    $('.bug').each(function () { $(this).moveNext(); });
+            //}, 500);
+
+        });
+    </script>
+</body>
+</html>
