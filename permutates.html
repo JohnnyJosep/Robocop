@@ -31,6 +31,12 @@
 </head>
 <body>
 
+    <div class="container">
+        <h1>Base de conocimientos</h1>
+
+        <p>Clicando en la casilla correcpondiente y luego en next se guarda la decision tomada pare el caso en concreto. Tambien hay el boton Last para realizar el movimiento ue se hubiera echo en el último caso</p>
+    </div>
+
     <div class="map container">
         <div class="row">
             <div class="col-sm-4 state-no"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
@@ -75,9 +81,20 @@
             var states = [];
             var i = 0;
             var dir = '';
+            var last = '';
 
-            $('.state-n').add('.state-e').add('.state-s').add('.state-o').add('#last').click(function () {
-                $('.state-n').add('.state-e').add('.state-s').add('.state-o').add('#last').removeClass('selected');
+            $('#last').click(function () {
+                if (last === '') {
+                    last = 'last';
+                    $(this).addClass('selected');
+                } else {
+                    last = '';
+                    $(this).removeClass('selected');
+                }
+            })
+
+            $('.state-n').add('.state-e').add('.state-s').add('.state-o').click(function () {
+                $('.state-n').add('.state-e').add('.state-s').add('.state-o').removeClass('selected');
                 var $self = $(this);
                 dir = '';
                 var cls = $self.attr('class').split(' ');
@@ -90,7 +107,9 @@
             })
 
             $('#next').click(function () {
-                states[i++].dir = dir;
+                $('[class*="state-"]').removeClass('selected');
+                last = '';
+                states[i++].dir = last === 'last' ? 'last-' + dir : dir;
                 loadState();
                 $('#json').val(JSON.stringify(states));
             });
