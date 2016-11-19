@@ -121,6 +121,7 @@
                 last = '';
                 loadState();
                 var json = JSON.stringify(states);
+                if (jsons.length > 3) jsons.shift();
                 jsons.push(json);
                 $('#json').val(json);
             });
