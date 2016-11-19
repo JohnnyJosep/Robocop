@@ -137,7 +137,7 @@
                 i = 0;
             }
 
-            $.getJSON('/json/states.json', function (data) {
+            $.getJSON('https://raw.githubusercontent.com/JohnnyJosep/Robocop/master/json/states.json', function (data) {
                 $.each(data, function (key, val) {
                     states.push(val);
                 });
