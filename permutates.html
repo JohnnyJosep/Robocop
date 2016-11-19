@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <style>
+        .map {
+            max-width: 500px;
+            display: block;
+            margin: 0 auto;
+            font-size: 75px;
+        }
+
+        .fa-square {
+            color: white;
+        }
+
+        .wall .fa-square {
+            color: brown;
+        }
+        
+        .selected .fa-square-o {
+            color: green;
+        }
+        button.selected, button.selected:active, button.selected:focus {
+            background-color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="map container">
+        <div class="row">
+            <div class="col-sm-4 state-no"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
+            <div class="col-sm-4 state-n"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
+            <div class="col-sm-4 state-ne"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 state-o"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
+            <div class="col-sm-4 center"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-circle fa-stack-1x"></i></span></i></span></div>
+            <div class="col-sm-4 state-e"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 state-so"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
+            <div class="col-sm-4 state-s"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
+            <div class="col-sm-4 state-se"><span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i><i class="fa fa-square fa-stack-1x"></i></span></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <button type="button" id="last" class="btn btn-default state-last">Last move</button>
+            </div>
+            <div class="col-sm-6">
+                <button type="button" id="next" class="btn btn-default">Next</button>
+            </div>
+        </div>
+      
+        <div class="row">
+            <div class="col-sm-12">
+                <textarea id="json" class="form-control" style="min-height:400em;margin-bottom:4em;"></textarea>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            var states = [];
+            var i = 0;
+            var dir = '';
+
+            $('.state-n').add('.state-e').add('.state-s').add('.state-o').add('#last').click(function () {
+                $('.state-n').add('.state-e').add('.state-s').add('.state-o').add('#last').removeClass('selected');
+                var $self = $(this);
+                dir = '';
+                var cls = $self.attr('class').split(' ');
+                for (var i = 0; i < cls.length && dir === ''; i++) {
+                    if (cls[i].indexOf('state-') == 0) {
+                        dir = cls[i].substring(6, cls[i].length);
+                    }
+                }
+                $self.addClass('selected');
+            })
+
+            $('#next').click(function () {
+                states[i++].dir = dir;
+                loadState();
+                $('#json').val(JSON.stringify(states));
+            });
+
+            function loadState() {
+
+                $('[class*="state-"]').removeClass('wall');
+
+                while (i < states.length) {
+                    var state = states[i];
+                    if (state.dir === '') {
+                        $('.state-no').addClass(state.no);
+                        $('.state-n').addClass(state.n);
+                        $('.state-ne').addClass(state.ne);
+
+                        $('.state-o').addClass(state.o);
+                        $('.state-e').addClass(state.e);
+
+                        $('.state-so').addClass(state.so);
+                        $('.state-s').addClass(state.s);
+                        $('.state-se').addClass(state.se);
+
+                        return;
+                    }
+                }
+                alert("END");
+                i = 0;
+            }
+
+            $.getJSON('/json/states.json', function (data) {
+                $.each(data, function (key, val) {
+                    states.push(val);
+                });
+                loadState();
+            })
+
+        });
+    </script>
+</body>
+
+</html>
