@@ -117,8 +117,8 @@
 
             $('#next').click(function () {
                 $('[class*="state-"]').removeClass('selected');
-                last = '';
                 states[i++].dir = last === 'last' ? 'last-' + dir : dir;
+                last = '';
                 loadState();
                 var json = JSON.stringify(states);
                 jsons.push(json);
