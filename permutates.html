@@ -126,7 +126,7 @@
             });
 
             $('#load').click(function () {
-                states = $.parseJSON($(this).val());
+                states = $.parseJSON($('#json').val());
                 i = 0; dir = ''; last = '';
                 $('[class*="state-"]').removeClass('wall').removeClass('selected');
                 loadState();
