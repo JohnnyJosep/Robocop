@@ -74,6 +74,9 @@
             <div class="col-sm-12">
                 <textarea id="json" class="form-control" style="min-height:400em;margin-bottom:4em;"></textarea>
             </div>
+            <div class="col-sm-12">
+                <button id="load" class="btn btn-default">Cargar JSON</button>
+            </div>
         </div>
     </div>
 
@@ -87,6 +90,7 @@
             var i = 0;
             var dir = '';
             var last = '';
+            var jsons = [];
 
             $('#last').click(function () {
                 if (last === '') {
@@ -116,7 +120,16 @@
                 last = '';
                 states[i++].dir = last === 'last' ? 'last-' + dir : dir;
                 loadState();
-                $('#json').val(JSON.stringify(states));
+                var json = JSON.stringify(states);
+                jsons.push(json);
+                $('#json').val(json);
+            });
+
+            $('#load').click(function () {
+                states = $.parseJSON($(this).val());
+                i = 0; dir = ''; last = '';
+                $('[class*="state-"]').removeClass('wall').removeClass('selected');
+                loadState();
             });
 
             function loadState() {
