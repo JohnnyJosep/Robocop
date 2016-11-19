@@ -80,7 +80,7 @@
         </div>
     </div>
 
-
+    <iframe id="#down" style="display:none"></iframe>
 
     <script src="js/jquery-3.1.1.min.js"></script>
     <script>
@@ -121,12 +121,18 @@
                 last = '';
                 loadState();
                 var json = JSON.stringify(states);
-                if (jsons.length > 3) jsons.shift();
+                if (jsons.length > 2) jsons.shift();
                 jsons.push(json);
                 $('#json').val(json);
+
+                if (i % 10 == 0) {
+                    $('#down').src = json;
+                }
             });
 
             $('#load').click(function () {
+                states = [];
+                jsons = [];
                 states = $.parseJSON($('#json').val());
                 i = 0; dir = ''; last = '';
                 $('[class*="state-"]').removeClass('wall').removeClass('selected');
@@ -156,7 +162,7 @@
                 i = 0;
             }
 
-            $.getJSON('https://raw.githubusercontent.com/JohnnyJosep/Robocop/master/json/states.json', function (data) {
+            $.getJSON('https://raw.githubusercontent.com/JohnnyJosep/Robocop/master/json/states2.json', function (data) {
                 $.each(data, function (key, val) {
                     states.push(val);
                 });
