@@ -33,7 +33,7 @@
         return dirs[0].substring(4, 5);;
     };
 
-    $.fn.init = function (position, whites) {
+    $.fn.initMap = function ($sheep, position, whites) {
         var $self = $(this);
         var trans = false;
         if (dim % 2 == 0) {
@@ -58,6 +58,25 @@
                 fila++;
             }
         }
+        //whites as array
+        $.each(whites, function (i, v) {
+            $('.tierra.col-' + v.col + '.row-' + v.row).addClass('roca');
+        });
+
+        //var left = $self.css('left');
+        //left = left.substring(0, left.length - 2);
+        //var top = $self.css('top');
+        //top = top.substring(0, left.length - 2);
+
+        var top = $(window).height() / 2;
+        var left = $(window).width() / 2;
+
+        $self.css({
+            top: top - (Math.max(position.col, position.row) * 54.55) + 'px',
+            left: left + (position.row - position.col) * 51 + 'px'
+        });
+
+        $sheep.addClass('col-' + position.col).addClass('row-' + position.row);
         return $self;
     };
     $.fn.getNum = function (prefix) {

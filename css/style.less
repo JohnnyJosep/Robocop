@@ -30,10 +30,6 @@
     content: " ";
 }
 
-#map {
-    width: 800px;
-    height: 800px;
-}
 
 .bug, .stop {
     font-size: 40px;
@@ -96,9 +92,19 @@ html, body {
 .tierra.roca .cubo {
     opacity:0;
 }
-.cabra {
-    position: absolute;
+
+
+
+body {overflow:hidden;}
+#map {
+    position:absolute;
     top: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#sheep {
+    position: absolute;
+    top: ~'calc(50% + 13px)';
     left: 50%;
     transform: translate(-50%,-50%);
     margin-top:-55px;
