@@ -162,7 +162,7 @@
                 i = 0;
             }
 
-            $.getJSON('https://raw.githubusercontent.com/JohnnyJosep/Robocop/master/json/states2.json', function (data) {
+            $.getJSON('/json/states2.json', function (data) {
                 $.each(data, function (key, val) {
                     states.push(val);
                 });
