@@ -31,10 +31,10 @@
                 }
             }
         }
-        return dirs[0].substring(4, 5);;
+        return dirs[0].substring(4, 5);
     };
 
-    $.fn.initMap = function ($sheep, position, whites) {
+    $.fn.initMap = function (position, whites) {
         var $self = $(this);
         var trans = false;
         if (dim % 2 == 0) {
@@ -54,7 +54,7 @@
                 if (trans && (col == 0 || row == 0)) {
                     $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
                 } else {
-                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img class="cubo" src="imgs/tierra.png" /><img class="sheep" src="imgs/cabra.png" /><img class="roca" src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
+                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img class="cubo" src="imgs/tierra.png" /><img class="cabra" src="imgs/cabra.png" /><img class="roca" src="imgs/roca.png" /></div>').appendTo($('.fila-' + fila));
                 }
                 fila++;
             }
@@ -64,20 +64,9 @@
             $('.tierra.col-' + v.col + '.row-' + v.row).addClass('roca');
         });
 
-        //var left = $self.css('left');
-        //left = left.substring(0, left.length - 2);
-        //var top = $self.css('top');
-        //top = top.substring(0, left.length - 2);
+        $self.find('.tierra.col-' + position.col + '.row-' + position.row).addClass('cabra').removeClass('roca');
 
-        var top = $(window).height() / 2;
-        var left = $(window).width() / 2;
-
-        $self.css({
-            top: top - (Math.max(position.col, position.row) * 54.55) + 'px',
-            left: left + (position.row - position.col) * 51 + 'px'
-        });
-
-        $sheep.addClass('col-' + position.col).addClass('row-' + position.row);
+        $self.addClass('col-' + position.col).addClass('row-' + position.row);
         return $self;
     };
     $.fn.getNum = function (prefix) {
@@ -89,48 +78,62 @@
         }
         return undefined;
     };
+
     $.fn.moveTo = function (dir) {
         var $self = $(this);
-
-        var ml = $self.css('margin-left');
-        var mt = $self.css('margin-top');
-        ml = ml.substring(0, ml.length - 2);
-        mt = mt.substring(0, mt.length - 2);
-
+        
         var last = $self.getNum('last-');
-        var c = $self.getNum('col-');
-        var r = $self.getNum('row-');
+        var c = +$self.getNum('col-');
+        var r = +$self.getNum('row-');
 
+        $self.find('.tierra.cabra').removeClass('cabra');
         $self.removeClass('col-' + c).removeClass('row-' + r).removeClass('last-' + last);
 
-        if (dir == 0) {
-            ml = +ml - 50;
-            mt = +mt + 29;
+        if (dir == 'n') {
             r -= 1;
-        } else if (dir == 1) {
-            ml = +ml + 50;
-            mt = +mt + 29;
+            last = 's';
+        } else if (dir == 'o') {
             c -= 1
-        } else if (dir == 2) {
-            ml = +ml + 50;
-            mt = +mt - 29;
+            last = 'e'
+        } else if (dir == 's') {
             r += 1;
+            last = 'n'
         } else {
-            ml = +ml - 50;
-            mt = +mt - 29;
             c += 1;
+            last = 'o'
         }
 
-        $self.addClass('col-' + c).addClass('row-' + r).addClass('last-' + dir);
-        $self.css({
-            marginLeft: ml + "px",
-            marginTop: mt + "px"
-        });
+        $self.find('.tierra.col-' + c + '.row-' + r).addClass('cabra');
+        $self.addClass('col-' + c).addClass('row-' + r).addClass('last-' + last);
         return $self;
     };
-    $.fn.move = function ($map) {
-        var c = $self.getNum('col-');
-        var r = $self.getNum('row-');
-    };
+    $.fn.blockState = function (col, row) {
+        var $self = $(this);
+        return $self.find('.tierra.col-' + col + '.row-' + row).length === 0 || $self.find('.tierra.col-' + col + '.row-' + row).hasClass('roca') ? 'wall' : 'empty';
+    }
+    $.fn.seach = function () {
+        var $self = $(this);
+        var last = $self.getNum('last-');
+        var c = +$self.getNum('col-');
+        var r = +$self.getNum('row-');
+
+        var state = {
+            n: $self.blockState(c, r - 1),
+            no: $self.blockState(c - 1, r - 1),
+            o: $self.blockState(c - 1, r),
+            so: $self.blockState(c - 1, r + 1),
+            s: $self.blockState(c, r + 1),
+            se: $self.blockState(c + 1, r + 1),
+            e: $self.blockState(c + 1, r),
+            ne: $self.blockState(c + 1, r - 1)
+        };
+
+        console.log(state);
+        var premisa = getState(state);
+        console.log(premisa);
+
+        $self.moveTo(getDir(premisa.dir, last));
+        return $self;
+    }
 
 }(jQuery));

@@ -1,4 +1,4 @@
-﻿@import 'bootstrap/bootstrap.less';
+﻿//@import 'bootstrap/bootstrap.less';
 
 #map {
     position: absolute;
@@ -14,17 +14,19 @@
 }
 
 .tierra {
+    display: flex;
+
     & img {
         width: 100px;
         margin: 0;
     }
 
-    & .sheep, .roca {
+    & .cabra, & .roca {
         display: none;
         margin-left: -100px;
     }
 
-    &.sheep .sheep, &.roca .roca {
+    &.cabra .cabra, &.roca .roca {
         display: block;
     }
 }

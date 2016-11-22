@@ -9,26 +9,33 @@
 
 
     <div id="map"></div>
-    <div id="sheep">
-        <img src="imgs/cabra.png" />
-    </div>
 
     <script src="js/jquery-3.1.1.min.js"></script>
     <script src="js/jquery.bc.js"></script>
     <script>
         $(document).ready(function () {
             var $map = $('#map');
-            var $sheep = $('#sheep');
 
             $map.initMap(
-                $sheep,
                 { col: 5, row: 5 },
                 [
                     { col: 0, row: 0 },
                     { col: 3, row: 0 },
                     { col: 5, row: 0 },
                     { col: 5, row: 5 },
-                ]);
+                ]
+            );
+
+
+            //setTimeout(function () {
+            //    setInterval(function () {
+            //        $map.seach();
+            //    }, 1000);
+            //}, 1000);
+
+            $(document).keydown(function (ev) {
+                if (ev.which == 13) $map.seach();
+            });
         });
     </script>
 </body>
