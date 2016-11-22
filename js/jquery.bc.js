@@ -5,6 +5,7 @@
         $.each(data, function (key, val) {
             bc.push(val);
         });
+        console.log(bc.length + " states");
     });
     function getState(state) {
         for (var i = 0; i < bc.length; i++) {
@@ -53,7 +54,7 @@
                 if (trans && (col == 0 || row == 0)) {
                     $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
                 } else {
-                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img class="cubo" src="imgs/tierra.png" /><img class="roca" src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
+                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img class="cubo" src="imgs/tierra.png" /><img class="sheep" src="imgs/cabra.png" /><img class="roca" src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
                 }
                 fila++;
             }
