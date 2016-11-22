@@ -7,6 +7,25 @@
 </head>
 <body>
 
+    <h1 class="text-center">Ovella a la fuga.</h1>
+
+    <div class="container" id="dim-insert">
+        <div class="form-group">
+            <label for="dim" class="control-label">Quina dimensió ha de tenir la graella?</label>
+            <input type="number" class="form-control" id="dim" value="15" />
+        </div>
+        <div class="form-group">
+            <input type="submit" id="dimbtn" value="Crear el mapa" class="form-control btn btn-default" />
+        </div>
+    </div>
+
+    <div class="container" id="map-creator">
+
+        <div id="minimap"></div>
+        <div class="form-group">
+            <input type="submit" id="start" disabled="disabled" value="Comença" class="form-control btn btn-default" />
+        </div>
+    </div>
 
     <div id="map"></div>
 
@@ -15,27 +34,94 @@
     <script>
         $(document).ready(function () {
             var $map = $('#map');
+            var $diminsert = $('#dim-insert');
+            var $mapcreator = $('#map-creator');
+            var $minimap = $('#minimap');
+            var dim = 15;
 
-            $map.initMap(
-                { col: 5, row: 5 },
-                [
-                    { col: 0, row: 0 },
-                    { col: 3, row: 0 },
-                    { col: 5, row: 0 },
-                    { col: 5, row: 5 },
-                ]
-            );
+            $('#dimbtn').click(function () {
+                dim = $('#dim').val();
+
+                $diminsert.hide();
+                $mapcreator.show();
+
+                var celldim = $minimap.width() / dim;
+
+                for (var col = 0; col < dim; col++) {
+                    var $line = $('<div class="minimap-line"></div>')
+
+                    for (var row = 0; row < dim; row++) {
+                        var $cell = $('<div class="minimap-cell col-' + col + ' row-' + row + '"></div>');
+                        $cell.css({
+                            width: celldim,
+                            height: celldim
+                        });
+                        $cell.appendTo($line);
+                    }
+
+                    $line.appendTo($minimap);
+                }
+
+                $('.minimap-cell').click(function () {
+                    $(this).toggleClass('roca').removeClass('cabra');
+                    if ($('.minimap-cell.cabra').length === 0) {
+                        $('#start').prop('disabled', true);
+                    }
+                });
+                $('.minimap-cell').on('contextmenu', function (ev) {
+                    $('.minimap-cell.cabra').removeClass('cabra');
+                    $(this).addClass('cabra').removeClass('roca');
+                    $('#start').prop('disabled', false);
+                    return false;
+                });
 
 
-            //setTimeout(function () {
-            //    setInterval(function () {
-            //        $map.seach();
-            //    }, 1000);
-            //}, 1000);
+                $('#start').click(function () {
+                    var roques = [];
+                    $('.minimap-cell.roca').each(function (item) {
+                        var $self = $(this);
+                        var c = +$self.getNum('col-');
+                        var r = +$self.getNum('row-');
 
-            $(document).keydown(function (ev) {
-                if (ev.which == 13) $map.seach();
+                        roques.push({ col: c, row: r });
+                    });
+
+                    
+                    $mapcreator.hide();
+                    $map.show();
+
+                    $map.initMap(dim, {
+                        col: +$('.minimap-cell.cabra').getNum('col-'),
+                        row: +$('.minimap-cell.cabra').getNum('row-')
+                    },
+                    roques);
+
+                    setTimeout(function () { }, 1500);
+
+                    var interval = setInterval(function () {
+                        $map.seach();
+                    }, 400);
+
+                    $(document).on('keydown', function (ev) {
+                        if (ev.which == 27) {
+                            clearInterval(interval);
+                            var c = +$('#map').getNum('col-');
+                            var r = +$('#map').getNum('row-');
+                            $('.minimap-cell.cabra').removeClass('cabra');
+                            $('.minimap-cell.col-' + c + '.row-' + r).addClass('cabra');
+                            $mapcreator.show();
+                            $map.html('');
+                            $map.attr('class', '');
+                            $map.hide();
+
+                            return false;
+                        }
+                    });
+                    return false;
+                });
             });
+
+
         });
     </script>
 </body>

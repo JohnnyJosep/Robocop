@@ -1,6 +1,25 @@
-﻿//@import 'bootstrap/bootstrap.less';
+﻿@import 'bootstrap/bootstrap.less';
+
+#map-creator {
+    display: none;
+}
+
+.minimap-line {
+    display: flex;
+}
+.minimap-cell {
+    background-color: #1f5;
+    border: 1px solid #aaa;
+}
+.minimap-cell.roca {
+    background-color: #fff;
+}
+.minimap-cell.cabra {
+    background-color: #51a;
+}
 
 #map {
+    display: none;
     position: absolute;
     top: 50%;
     left: 50%;

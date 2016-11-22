@@ -1,6 +1,5 @@
 ﻿(function ($) {
     var bc = [];
-    var dim = 17;
     $.getJSON('/json/bc.json', function (data) {
         $.each(data, function (key, val) {
             bc.push(val);
@@ -34,7 +33,7 @@
         return dirs[0].substring(4, 5);
     };
 
-    $.fn.initMap = function (position, whites) {
+    $.fn.initMap = function (dim, position, whites) {
         var $self = $(this);
         var trans = false;
         if (dim % 2 == 0) {
@@ -52,7 +51,7 @@
             var fila = sf++;
             for (var row = 0; row < dim; row++) {
                 if (trans && (col == 0 || row == 0)) {
-                    $('<div class="col-' + col + ' row-' + row + ' tierra"><img src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
+                    $('<div class="col-' + col + ' row-' + row + ' tierra roca"><img src="imgs/forat.png" /></div>').appendTo($('.fila-' + fila));
                 } else {
                     $('<div class="col-' + col + ' row-' + row + ' tierra"><img class="cubo" src="imgs/tierra.png" /><img class="cabra" src="imgs/cabra.png" /><img class="roca" src="imgs/roca.png" /></div>').appendTo($('.fila-' + fila));
                 }
@@ -128,9 +127,9 @@
             ne: $self.blockState(c + 1, r - 1)
         };
 
-        console.log(state);
+        //console.log(state);
         var premisa = getState(state);
-        console.log(premisa);
+        //console.log(premisa);
 
         $self.moveTo(getDir(premisa.dir, last));
         return $self;
