@@ -20,6 +20,11 @@
     }
 
     & .sheep, .roca {
+        display: none;
         margin-left: -100px;
+    }
+
+    &.sheep .sheep, &.roca .roca {
+        display: block;
     }
 }

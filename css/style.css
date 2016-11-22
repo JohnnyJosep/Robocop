@@ -8145,5 +8145,10 @@ button.close {
 }
 .tierra .sheep,
 .tierra .roca {
+  display: none;
   margin-left: -100px;
+}
+.tierra.sheep .sheep,
+.tierra.roca .roca {
+  display: block;
 }
