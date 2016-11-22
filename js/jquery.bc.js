@@ -1,6 +1,6 @@
 ﻿(function ($) {
     var bc = [];
-    $.getJSON('/json/bc.json', function (data) {
+    $.getJSON('https://johnnyjosep.github.io/Robocop/json/bc.json', function (data) {
         $.each(data, function (key, val) {
             bc.push(val);
         });
